@@ -436,7 +436,12 @@ while ($row=mysqli_fetch_array($result)) {
       echo '<label  style="padding: 3px 15px;
                           font-size: 12px;
                           text-align: left;
-                          color: #666666;">'.substr($row[2],0,28).'... </label>';
+                          color: #666666;">'.substr($row[2],0,28);
+
+      if(strlen($row[2]) >= 31 ){
+          echo '...';
+      }
+      echo '</label>';
       //echo '<input type="button" class="intentx" value="'.$row[3].'">';
       if(!strcmp($row[3],"change_address")){
         echo '<input type="button" class="entity" value="'.$row[4].'"><br>';
