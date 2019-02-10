@@ -54,7 +54,7 @@ $baseval=$row[0];
 
 
   function showInput(clicked_id,mail_subject,mail_sender,mail_intent,mail_entity,mail_intent_score,mail_sentiment,mail_sentiment_score,reply_mailid,reply_mailsub,reply_mailbody,avatar_num){
-
+  //localStorage.setItem("cur_store_key", clicked_id);
   document.getElementById("mailsubject").innerText = mail_subject;
   var mailtxt = clicked_id.replace(/(\n)/gm, " ");
   mailtxt = mailtxt.substring(13);
@@ -106,7 +106,7 @@ $baseval=$row[0];
   }
 
   function TrainFunc(){
-    var utterance = document.getElementById("mailtext").value;
+    var utterance = document.getElementById("mailtext").innerText;
     var intent =  document.getElementById("intents").value;
     $.ajax({
             type : "POST",  //type of method
@@ -181,8 +181,8 @@ body {
   border-top: none;
   border-left: none;
   font-family: inherit;
-  width: 25%;
-  padding: 10px 20px;
+  width: 20%;
+  padding: 10px 10px;
   font-size: 16px;
   cursor: pointer;
   background-color:#fcfcfc;
@@ -236,7 +236,7 @@ body {
   display:inline-block;
   font-family: inherit;
   padding-top: 15px; 
-  font-size: 18px;
+  font-size: 16px;
   text-align: left;
   color: black;
   }
@@ -587,7 +587,13 @@ echo ' <div class="split right scroller">
   //SELECT COUNT(*) FROM data GROUP BY intent;
   //SELECT DISTINCT `intent`, COUNT(*) FROM `data` GROUP BY `intent` 
 
+  $count_result = mysqli_query($con,"SELECT COUNT(*) FROM data");
+  $count=mysqli_fetch_array($count_result);
   echo '<textarea name="curent_button_id" style="display:none;" id="curent_button_id">null</textarea>';
+  echo '<button class="block" id="all" onclick="window.location.href = \'dashboard_all.php\';">';
+  echo '<label  class="intent" >All mails</label>';
+  echo '<input type="button" class="count" value="'.$count[0].'">';
+  echo '</button>';  
 
   while ($row=mysqli_fetch_array($result)) {
 

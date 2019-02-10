@@ -1,5 +1,7 @@
 <html>
 <script src="jquery.min.js"></script>
+
+
 <head>
 
 
@@ -17,11 +19,23 @@ $baseval=$row[0];
   //get largest intial value of time in db
   var base= <?php echo $baseval ?>;
 
+
+
+  $(window).on('load', function() {
+      var old_button_la = localStorage.getItem("cur_store_key_all");
+      //alert("page finished loading");
+      //alert("after load"+old_button_la);
+      document.getElementById(old_button_la).click();
+  });
+
+
+
   jQuery(function($){
     $("#rows").load("data.php");
     setInterval(function(){
       $.get( 'compare.php', function(maxVal){
         console.log(maxVal);
+        //alert(current);
         //alert("MAX VAL IS :" + maxVal);
         if(maxVal>base)
         {
@@ -39,19 +53,42 @@ $baseval=$row[0];
 
 
 
-  function showInput(clicked_id,mail_subject,mail_sender,mail_intent,mail_entity,mail_intent_score,mail_sentiment,mail_sentiment_score){
-
+  function showInput(clicked_id,mail_subject,mail_sender,mail_intent,mail_entity,mail_intent_score,mail_sentiment,mail_sentiment_score,reply_mailid,reply_mailsub,reply_mailbody,avatar_num){
+  //localStorage.setItem("cur_store_key_all", clicked_id);
   document.getElementById("mailsubject").innerText = mail_subject;
+  var mailtxt = clicked_id.replace(/(\n)/gm, " ");
+  mailtxt = mailtxt.substring(13);
+  document.getElementById("mailtext").innerText = mailtxt;
   document.getElementById("mailintent").value=mail_intent;
   document.getElementById("mailsender").innerText = mail_sender;
   document.getElementById("mailintentscore").value=mail_intent_score;
   document.getElementById("mailsentiment").value=mail_sentiment;
   document.getElementById("mailsentimentscore").value=mail_sentiment_score;
   
+  document.getElementById("rep_mailsubject").innerText = reply_mailsub;
+  document.getElementById("rep_mailsender").innerText = reply_mailid+'@gmail.com';
+  document.getElementById("rep_mailtext").innerText = reply_mailbody.replace(/[\n\r]+/g, ' ');
   
-  document.getElementById("mailtext").value=clicked_id;
-  var but = document.getElementById(clicked_id);
- 
+  document.getElementById("avatar_mail").src="avatar"+avatar_num+".png";
+
+
+  //revert color of cold button to unhighlight
+  var old_button_la = localStorage.getItem("cur_store_key_all");
+  var element_old = document.getElementById(old_button_la);
+  element_old.style.background = '#fcfcfc';
+
+  //change color to highlight this mail button 
+  var element = document.getElementById(clicked_id);
+  element.style.background = '#B2DAE4';
+  
+  //overwrite current_button_id with this one's id
+  document.getElementById("curent_button_id").innerText = clicked_id;
+  localStorage.setItem("cur_store_key_all", clicked_id);
+  var test = localStorage.getItem("cur_store_key_all");
+  
+  
+
+
   document.getElementById("accuracyTest").style.display = "block";
   document.getElementById("trainMenu").style.display = "none";
   document.getElementById("boast").style.display = "none"; 
@@ -71,7 +108,7 @@ $baseval=$row[0];
   }
 
   function TrainFunc(){
-    var utterance = document.getElementById("mailtext").value;
+    var utterance = document.getElementById("mailtext").innerText;
     var intent =  document.getElementById("intents").value;
     $.ajax({
             type : "POST",  //type of method
@@ -82,6 +119,9 @@ $baseval=$row[0];
                     }
         });
   }
+
+  
+          
 
 
 
@@ -118,11 +158,11 @@ body {
 .left {
   left: 0;
   background-color: #e8e8e8;
+  width: 25%;
 }
 
 .right {
-
-  width: 70%;
+  width: 75%;
   right: 0;
   background-color: white;
 }
@@ -131,9 +171,9 @@ body {
   position: fixed;
   bottom: 0;
   right: 0;
-  background-color: #fcfcfc;
-  height:30%;
-  width: 70%;
+  background-color: #f7f7f7;
+  height: 75%;
+  width: 26%;
   border-color: black;
 }
 
@@ -188,7 +228,7 @@ body {
   cursor: pointer;
   color: white;
   text-align: left;
-  margin-left: 10px;
+  margin-left: 15px;
   margin-top: 5px;
   margin-bottom: 5px;
 }
@@ -223,7 +263,7 @@ body {
 }
 
 .sender {
-  display:inline-block;
+  display:inline;
   font-family: inherit;
   width: 95%;
   padding: 3px 15px;
@@ -233,7 +273,7 @@ body {
   }
 
  .subject {
-  display:inline-block;
+  display:inline;
   font-family: inherit;
   width: 95%;
   padding: 3px 15px;
@@ -285,8 +325,8 @@ body {
 }
 
 input[type=text], select {
-  width: 30%;
-  padding: 8px 20px;
+  width: 62%;
+  padding: 10px 10px;
   margin: 8px 0;
   display: inline-block;
   border: 1px solid #ccc;
@@ -317,7 +357,7 @@ table.roundedCorners tr:last-child > td {
   font-family: inherit;
   width: auto;
   border: none;
-  background-color: #0a9ac2;
+  background-color: #2c8ba5;
   padding: 5px ;
   font-size: 14px;
   cursor: pointer;
@@ -335,10 +375,10 @@ table.roundedCorners tr:last-child > td {
   width: auto;
   height: auto;
   border: none;
-  padding-left: 14px;
-  padding-right: 14px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 5px;
+  padding-bottom: 5px;
   background-color: #0a9ac2;
   font-size: 20px;
   cursor: pointer;
@@ -358,6 +398,14 @@ table.roundedCorners tr:last-child > td {
   scrollbar-width: thin;
 }
 
+.avatar {
+  width: 60px;
+  height: 60px;
+  margin-left: 15px;
+  float: left; 
+   border-radius: 15%;
+}
+
 </style>
 </head>
 <body>
@@ -375,21 +423,36 @@ mysqli_query($con,"USE ".DB_NAME);
 
 echo '<div class="split left scroller">';
 
-$result = mysqli_query($con,"SELECT * FROM data  WHERE intent =\"None\" ORDER BY time DESC;");
+$result = mysqli_query($con,"SELECT * FROM data ORDER BY time DESC;");
 while ($row=mysqli_fetch_array($result)) {
 
-      echo '<button class="blockx" id="'.$row[2].'" onclick="showInput(this.id,\''.$row[1].'\',\''.$row[0].'\',\''.$row[3].'\',\''.$row[4].'\',\''.$row[5].'\',\''.$row[6].'\',\''.$row[7].'\')">';
-
-      echo '<label  class="sender">'.$row[0].'</label>';
-    
-      echo '<label  class="subject" >'.$row[1].'</label>';
       
-      echo '<input type="button" class="intentx" value="'.$row[3].'">';
+      echo '<button class="blockx" id="'.$row[12].$row[2].'" onclick="showInput(this.id,\''.$row[1].'\',\''.$row[0].'\',\''.$row[3].'\',\''.$row[4].'\',\''.$row[5].'\',\''.$row[6].'\',\''.$row[7].'\',\''.$row[8].'\',\''.$row[9].'\',\''.$row[10].'\',\''.$row[11].'\')">';
+
+      echo '<img src="avatar'.$row[11].'.png" alt="Avatar" class="avatar">';
+
+      echo '<div style="display:inline;"><label  class="sender">'.$row[0].'</label><br><small><small><small><small><small><small><br></small></small></small></small></small></small>';
+    
+      echo '<label  class="subject" >'.$row[1].'</label><br><small><small><small><small><small><small><br></small></small></small></small></small></small>';
+      
+      echo '<label  style="padding: 3px 15px;
+                          font-size: 12px;
+                          text-align: left;
+                          color: #666666;">'.substr($row[2],0,28);
+
+      if(strlen($row[2]) >= 31 ){
+          echo '...';
+      }
+      echo '</label>';
+
+      echo '<br><input type="button" class="entity" value="'.$row[3].'">';
+
+      //echo '<input type="button" class="intentx" value="'.$row[3].'">';
       if(!strcmp($row[3],"change_address")){
         echo '<input type="button" class="entity" value="'.$row[4].'"><br>';
       }
 
-      echo '</button>'; 
+      echo '</div></button>'; 
 
 }
 
@@ -400,31 +463,73 @@ echo '</div>';
 
 echo ' <div class="split right scroller">
             <br><br>
-            <label id="mailsubject" style="color:#3f3f3f;padding-left:25px;font-size:25px"></label>
+            <img src="avatar1.png" alt="Avatar" id="avatar_mail" class="avatar">
+            <small><small><small><small><br></small></small></small></small>
+            <label id="mailsubject" style="color:#3f3f3f;padding-left:25px;font-size:25px;"></label>
             <br>
             <label style="color:#848484; padding-left:25px;font-size:15px;">From: </label>
             <label id="mailsender" style="color:#848484;padding-left:5px;font-size:15px;"></label>
-            
-      <div class="flex-container">
-          <textarea readonly rows="4" cols="80" class="fill-width" id="mailtext" 
+            <br>
+            <br>
+          <label id="mailtext"  
           style ="
-          border-top: none;
-          border-right: none;
-          border-left: none;
-          padding-left:25px;
-          padding-top:5px;
-          font-family:fira;
-          color:#2b2b2b;
-          font-size: 18px;
-          background-color:white" ></textarea>
-      </div>
+                  display: inline-block;
+                  height:20px;
+                  width:630px;
+                  border-top: none;
+                  border-right: none;
+                  border-left: none;
+                  padding-left:25px;
+                  padding-top:25px;
+                  padding-bottom:25px;
+                  font-family:fira;
+                  color:#5b5b5b;
+                  font-size: 18px;
+                  background-color:white">
+          </label>
+          <!--dont delete the following marker -->
+          <label style="background-color:white;"> &nbsp &nbsp &nbsp &nbsp MARKER</label>
+          <br><br>
+          <hr style="height:1px;border:none;color:#d8d8d8;background-color:#d8d8d8;">
+          <label class = "intentx"style="color:black;">RIO replied to this mail</label>
+          <br><br>
+
+            <img src="rio_avatar.png" alt="Avatar" class="avatar">
+            <small><small><small><small><br></small></small></small></small>
+            <label id="rep_mailsubject" style="color:#3f3f3f;padding-left:25px;font-size:25px;"></label>
+            <br>
+            <label style="color:#848484; padding-left:25px;font-size:15px;">From: </label>
+            <label id="rep_mailsender" style="color:#848484;padding-left:5px;font-size:15px;"></label>
+            <br>
+            <br>
+          <label id="rep_mailtext"  
+          style ="
+                  display: inline-block;
+                  height:20px;
+                  width:630px;
+                  border-top: none;
+                  border-right: none;
+                  border-left: none;
+                  padding-left:25px;
+                  padding-top:25px;
+                  padding-bottom:25px;
+                  font-family:fira;
+                  color:#5b5b5b;
+                  font-size: 18px;
+                  background-color:white">
+          </label>
+
+          
+
       </div>';
 
 
-    echo '<div class="rightb"><br>
 
+    //echo '<div>
+    echo '<div class="rightb"><br>
+    
           <div id="trainMenu" style="display:none;"><br><br>
-          <center>
+          <center><br><br><br><br>  
             <label style="color:#044548;font-family: \'fira\';padding-left:15px;">Select the appropriate intent</label><br>
               <select id="intents" style="margin-left:25px;height=20px;font-family:\'fira\'">
               <option value="leave_application">leave_application</option>
@@ -432,25 +537,32 @@ echo ' <div class="split right scroller">
                 <option value="change_address">change_address</option>
                 <option value="None">None</option>
             </select> 
+            <br>
             <button class="train" onclick="TrainFunc()">Train</button>
             </center>
             </div>
             <div id="accuracyTest">
+            <br><br><br>
               <center>
-               <table style="width:80%;color:black;" class="roundedCorners">
-              <tr>
-                <td>Intent</td>
-                <td><input type="button" id="mailintent" class="intentdisp" value=""></td>
-                <td>Sentiment</td>
-                <td><input type="button" id="mailsentiment" class="intentdisp" value=""></td>
+               <table style="width:auto;color:black;display:inline-block;" class="roundedCorners">
+                <tr>
+                  <td>Intent &nbsp &nbsp </td>
+                  <td><input type="button" id="mailintent" class="intentdisp" value=""></td>
+                </tr><tr>
+                  <td>Score</td>
+                  <td><input type="button" id="mailintentscore" class="intentdisp" value=""></td>
                 </tr>
-              <tr>
-                <td>Intent Score</td>
-                <td><input type="button" id="mailintentscore" class="intentdisp" value=""></td>
-                <td>Sentiment Score</td>
+                </table>
+                <br><br>
+              <table style="width:auto;color:black;display:inline-block;" class="roundedCorners">
+                <tr>   
+                  <td>Sentiment</td>
+                  <td><input type="button" id="mailsentiment" class="intentdisp" value=""></td>
+                </tr><tr>
+                <td>Score</td>
                 <td><input type="button" id="mailsentimentscore" class="intentdisp" value=""></td>
-              </tr>
-            </table> <br>
+              </tr> 
+            </table>  <br><br>
             <label style="color:#044548;font-family: \'fira\';">Was this intent accurate?</label><br>
             <button class="train" onclick="showBoast()">Yes</button>
             <button class="train" onclick="showTrainMenu()" >No</button>
@@ -480,23 +592,18 @@ echo ' <div class="split right scroller">
   //SELECT COUNT(*) FROM data GROUP BY intent;
   //SELECT DISTINCT `intent`, COUNT(*) FROM `data` GROUP BY `intent` 
 
-
+  $count_result = mysqli_query($con,"SELECT COUNT(*) FROM data");
+  $count=mysqli_fetch_array($count_result);
   echo '<textarea name="curent_button_id" style="display:none;" id="curent_button_id">null</textarea>';
-  echo '<button class="block" id="all" onclick="window.location.href = \'dashboard_all.php\';">';
+  echo '<button class="block" id="all" style="background-color:#d7e8ed;" onclick="window.location.href = \'dashboard_all.php\';">';
   echo '<label  class="intent" >All mails</label>';
-  echo '<input type="button" class="count" value="15">';
+  echo '<input type="button" class="count" value="'.$count[0].'">';
   echo '</button>'; 
-
-
+  
   while ($row=mysqli_fetch_array($result)) {
 
-      if($row[0]!="None"){
       echo '<button class="block" id="'.$row[0].'" onclick="window.location.href = \'dashboard_'.$row[0].'.php\';">';
-      }
-      else{
-      echo '<button class="block" style="background-color:#d7e8ed;" id="'.$row[0].'" onclick="window.location.href = \'dashboard_'.$row[0].'.php\';">';
-      }
-      
+     
       echo '<label  class="intent" >'.$row[0].'</label>';
       
       echo '<input type="button" class="count" value="'.$row[1].'">';
