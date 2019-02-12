@@ -2,6 +2,8 @@
 $utterance = $_POST['utterance'];
 $intent = $_POST['intent'];
 
+$utterance = str_replace("'", " ", $utterance);
+$utterance = str_replace("\"", " ", $utterance);
 $servername = "localhost";
 $username = "root";
 $password = "";

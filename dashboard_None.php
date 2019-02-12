@@ -90,18 +90,50 @@ $baseval=$row[0];
   document.getElementById("accuracyTest").style.display = "block";
   document.getElementById("trainMenu").style.display = "none";
   document.getElementById("boast").style.display = "none"; 
+  document.getElementById("afterTrain").style.display = "none";
+
+  var timePOST = clicked_id.substring(0, 13);
+  var mailPOST = clicked_id.substring(13);
+  
+  //alert("--->"+timePOST+"<--->"+mailPOST+"<---");
+  $.ajax({
+            type : "POST",  //type of method
+            url  : "MarkAsRead.php",  //your page
+            data : { "timePOST" : timePOST, "mailPOST" : mailPOST},// passing the values
+            success: function(res){  
+                                //alert(res);
+                                //update unread counter of each tab
+                                var i = (res.match(/#/g) || []).length;
+                                while (i>0){
+                                  var focus = res.substring(0,res.indexOf("#"));
+                                  //alert(focus);
+                                  var intent_id=focus.substring(0,focus.indexOf("*"));
+                                  //alert("-->"+intent_id+"<--");
+                                  var count = focus.substring(focus.indexOf("*")+1);
+                                  //alert("-->"+count+"<--");
+                                  document.getElementById("unread_count_"+intent_id).value=count;
+                                  //alert("-->"+"unread_count_"+intent_id+"<--");
+                                  res=res.substring(res.indexOf("#")+1);
+                                  i=i-1;
+                                }
+
+                    }
+  });
+
   }
 
 
   function showTrainMenu(){
     document.getElementById("accuracyTest").style.display = "none"; 
-    document.getElementById("trainMenu").style.display = "block"; 
+    document.getElementById("trainMenu").style.display = "block";
+    document.getElementById("afterTrain").style.display = "none"; 
 
   }
   
   function showBoast(){
     document.getElementById("accuracyTest").style.display = "none"; 
     document.getElementById("boast").style.display = "block"; 
+    document.getElementById("afterTrain").style.display = "none";
 
   }
 
@@ -116,11 +148,28 @@ $baseval=$row[0];
                                 alert("Training data has been stored");    //do what you want here...
                     }
         });
+  }  
+
+  function TrainFunc2(){
+    var utterance = document.getElementById("mailtext").innerText;
+    var intent =  "None";
+    $.ajax({
+            type : "POST",  //type of method
+            url  : "addTrainingData.php",  //your page
+            data : { "utterance" : utterance, "intent" : intent },// passing the values
+            success: function(res){  
+                                //alert("Training data has been stored");    //do what you want here...
+                    }
+        });
+    document.getElementById("boast").style.display = "none";
+    document.getElementById("afterTrain").style.display = "block"; 
   }
 
+  function UpdateTrainMenu(){
+    document.getElementById("boast").style.display = "none";
+    document.getElementById("accuracyTest").style.display = "block"; 
+  }
   
-          
-
 
 
 </script>
@@ -337,15 +386,18 @@ table.roundedCorners {
   border-radius: 4px; 
   background-color: white;
   border-spacing: 0;
+  width:250px;
   }
 table.roundedCorners td, 
 table.roundedCorners th { 
   border-bottom: 1px solid #0a9ac2;
   padding-left: 5px; 
-  padding-right: 5px; 
+  padding-right: 5px;
+  width:250px; 
   }
 table.roundedCorners tr:last-child > td {
   border-bottom: none;
+  width:250px;
 }
 
 .intentdisp {
@@ -425,7 +477,12 @@ $result = mysqli_query($con,"SELECT * FROM data  WHERE intent =\"None\" ORDER BY
 while ($row=mysqli_fetch_array($result)) {
 
       
+      if($row[13]=="0"){
+      echo '<button class="blockx" style="background-color:#DDF7FE;" id="'.$row[12].$row[2].'" onclick="showInput(this.id,\''.$row[1].'\',\''.$row[0].'\',\''.$row[3].'\',\''.$row[4].'\',\''.$row[5].'\',\''.$row[6].'\',\''.$row[7].'\',\''.$row[8].'\',\''.$row[9].'\',\''.$row[10].'\',\''.$row[11].'\')">';
+      }
+      else{
       echo '<button class="blockx" id="'.$row[12].$row[2].'" onclick="showInput(this.id,\''.$row[1].'\',\''.$row[0].'\',\''.$row[3].'\',\''.$row[4].'\',\''.$row[5].'\',\''.$row[6].'\',\''.$row[7].'\',\''.$row[8].'\',\''.$row[9].'\',\''.$row[10].'\',\''.$row[11].'\')">';
+      }
 
       echo '<img src="avatar'.$row[11].'.png" alt="Avatar" class="avatar">';
 
@@ -539,23 +596,23 @@ echo ' <div class="split right scroller">
             <div id="accuracyTest">
             <br><br><br>
               <center>
-               <table style="width:auto;color:black;display:inline-block;" class="roundedCorners">
+               <table style="color:black;display:inline-block;" class="roundedCorners">
                 <tr>
                   <td>Intent &nbsp &nbsp </td>
-                  <td><input type="button" id="mailintent" class="intentdisp" value=""></td>
+                  <td style="text-align:right;"><input type="button" id="mailintent" class="intentdisp" value=""></td>
                 </tr><tr>
                   <td>Score</td>
-                  <td><input type="button" id="mailintentscore" class="intentdisp" value=""></td>
+                  <td style="text-align:right;"><input type="button" id="mailintentscore" class="intentdisp" value=""></td>
                 </tr>
                 </table>
                 <br><br>
-              <table style="width:auto;color:black;display:inline-block;" class="roundedCorners">
+              <table style="color:black;display:inline-block;" class="roundedCorners">
                 <tr>   
                   <td>Sentiment</td>
-                  <td><input type="button" id="mailsentiment" class="intentdisp" value=""></td>
+                  <td style="text-align:right;"><input type="button" id="mailsentiment" class="intentdisp" value=""></td>
                 </tr><tr>
                 <td>Score</td>
-                <td><input type="button" id="mailsentimentscore" class="intentdisp" value=""></td>
+                <td style="text-align:right;"><input type="button" id="mailsentimentscore" class="intentdisp" value=""></td>
               </tr> 
             </table>  <br><br>
             <label style="color:#044548;font-family: \'fira\';">Was this intent accurate?</label><br>
@@ -568,9 +625,20 @@ echo ' <div class="split right scroller">
               <center>
               <br>
               <br>
-            <p style="color:#044548;margin-left:15px;font-family: \'fira\';">Ofcourse it is, our model is flawless!</p>
+            <p style="color:#044548;margin-left:15px;font-family: \'fira\';">Add this to training data?</p>
+            <button class="train" onclick="TrainFunc2()">Yes</button>
+            <button class="train" onclick="UpdateTrainMenu()" >No</button>
             </center>
             </div>
+
+          <div id="afterTrain" style="display:none;">
+              <center>
+              <br>
+              <br>
+            <p style="color:#044548;margin-left:15px;font-family: \'fira\';">Training data was stored</p>
+            </center>
+            </div>
+
 
       </div>';
 
@@ -587,12 +655,12 @@ echo ' <div class="split right scroller">
   //SELECT COUNT(*) FROM data GROUP BY intent;
   //SELECT DISTINCT `intent`, COUNT(*) FROM `data` GROUP BY `intent` 
 
-  $count_result = mysqli_query($con,"SELECT COUNT(*) FROM data");
+  $count_result = mysqli_query($con,"SELECT COUNT(*) FROM data where read_receipt=\"0\"");
   $count=mysqli_fetch_array($count_result);
   echo '<textarea name="curent_button_id" style="display:none;" id="curent_button_id">null</textarea>';
   echo '<button class="block" id="all" onclick="window.location.href = \'dashboard_all.php\';">';
   echo '<label  class="intent" >All mails</label>';
-  echo '<input type="button" class="count" value="'.$count[0].'">';
+  echo '<input type="button" id="unread_count_all"  class="count" value="'.$count[0].'">';
   echo '</button>';  
 
   while ($row=mysqli_fetch_array($result)) {
@@ -606,7 +674,10 @@ echo ' <div class="split right scroller">
       
       echo '<label  class="intent" >'.$row[0].'</label>';
       
-      echo '<input type="button" class="count" value="'.$row[1].'">';
+      //get count of unread mails in each category
+      $unread_count_result = mysqli_query($con,"SELECT COUNT(*) FROM data where `intent`=\"".$row[0]."\" and `read_receipt`=\"0\"");
+      $unread_count=mysqli_fetch_array($unread_count_result);
+      echo '<input type="button" id="unread_count_'.$row[0].'" class="count" value="'.$unread_count[0].'">';
 
       echo '</button>'; 
   }
